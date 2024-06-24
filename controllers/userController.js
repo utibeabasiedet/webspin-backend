@@ -93,7 +93,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (passwordIsCorrect) {
     // Check if the user's email is in the admin emails list
-    const adminEmails = ["yhuteecodes@gmail.com", "admin2@example.com"];
+    const adminEmails = ["yhuteecodes@gmail.com", "codedflexy555@gmail.com"];
     if (adminEmails.includes(user.emailAddress)) {
       user.role = "admin";
       await user.save();
