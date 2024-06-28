@@ -131,7 +131,6 @@ const loginUser = asyncHandler(async (req, res) => {
 
 module.exports = loginUser;
 
-
 // Logout User
 const logout = asyncHandler(async (req, res) => {
   res.cookie("token", "", {
@@ -156,6 +155,7 @@ const getUser = asyncHandler(async (req, res) => {
       points,
       withdrawnPoints,
       totalPaid,
+      role,
     } = user;
     res.status(200).json({
       _id,
@@ -164,6 +164,7 @@ const getUser = asyncHandler(async (req, res) => {
       points,
       withdrawnPoints,
       totalPaid,
+      role,
     });
   } else {
     res.status(400);
@@ -274,8 +275,22 @@ const getAllUsers = asyncHandler(async (req, res) => {
   if (users) {
     // Map the user data to remove sensitive information
     const userList = users.map(user => {
-      const { _id, walletAddress, emailAddress, points,withdrawnPoints,totalPaid } = user;
-      return { _id, walletAddress, emailAddress, points,withdrawnPoints,totalPaid };
+      const {
+        _id,
+        walletAddress,
+        emailAddress,
+        points,
+        withdrawnPoints,
+        totalPaid,
+      } = user;
+      return {
+        _id,
+        walletAddress,
+        emailAddress,
+        points,
+        withdrawnPoints,
+        totalPaid,
+      };
     });
 
     res.status(200).json(userList);
