@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const Token = require("../models/tokenModel");
 const crypto = require("crypto");
-// const sendEmail = require("../utils/sendEmail");
+const sendEmail = require("../utils/sendEmail");
 
 // Generate Token
 const generateToken = id => {
@@ -13,7 +13,7 @@ const generateToken = id => {
 
 // Register User
 const registerUser = asyncHandler(async (req, res) => {
-  const { walletAddress, emailAddress, password } = req.body;
+  const { walletAddress, emailAddress, password, referralCode } = req.body;
 
   // Validation
   if (!walletAddress || !emailAddress || !password) {
@@ -38,9 +38,24 @@ const registerUser = asyncHandler(async (req, res) => {
     walletAddress,
     emailAddress,
     password,
+    referredBy: referralCode,
   });
 
-  //   Generate Token
+  // Award points to referrer if referral code is valid
+  if (referralCode) {
+    const referrer = await User.findOne({ referralCode });
+    if (referrer) {
+      referrer.points += 20000; // Award points to referrer
+      await referrer.save();
+      console.log(`Points added to referrer: ${referrer.emailAddress}`);
+    } else {
+      console.log(`Invalid referral code: ${referralCode}`);
+    }
+  }
+
+ 
+
+  // Generate Token
   const token = generateToken(user._id);
 
   // Send HTTP-only cookie
@@ -51,9 +66,10 @@ const registerUser = asyncHandler(async (req, res) => {
     sameSite: "none",
     secure: true,
   });
+  // techi22333@gmail.com
 
   if (user) {
-    const { _id, walletAddress, emailAddress, points } = user;
+    const { _id, walletAddress, emailAddress, points,referralCode } = user;
     res.status(201).json({
       message: "User registered successfully",
       user: {
@@ -61,14 +77,16 @@ const registerUser = asyncHandler(async (req, res) => {
         emailAddress,
         walletAddress,
         points,
+        referralCode
       },
       token,
     });
-    console.log(req.cookies.token);
   } else {
     res.status(400).json({ error: "Invalid user data" });
   }
 });
+
+
 
 // Login User
 const loginUser = asyncHandler(async (req, res) => {
@@ -156,6 +174,7 @@ const getUser = asyncHandler(async (req, res) => {
       withdrawnPoints,
       totalPaid,
       role,
+      referralCode
     } = user;
     res.status(200).json({
       _id,
@@ -165,6 +184,7 @@ const getUser = asyncHandler(async (req, res) => {
       withdrawnPoints,
       totalPaid,
       role,
+      referralCode
     });
   } else {
     res.status(400);

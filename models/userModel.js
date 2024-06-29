@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 const userSchema = mongoose.Schema(
   {
@@ -47,11 +48,27 @@ const userSchema = mongoose.Schema(
         },
       },
     ],
+    referralCode: {
+      type: String,
+      unique: true,
+    },
+    referredBy: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+// Middleware to generate referral code only when a new user is created
+userSchema.pre("save", async function (next) {
+  if (this.isNew && !this.referralCode) {
+    this.referralCode = crypto.randomBytes(4).toString("hex"); // Generate a simple referral code
+  }
+  next();
+});
 
 // Encrypt password before saving to DB
 userSchema.pre("save", async function (next) {
