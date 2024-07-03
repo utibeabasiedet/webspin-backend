@@ -45,7 +45,7 @@ const registerUser = asyncHandler(async (req, res) => {
   if (referralCode) {
     const referrer = await User.findOne({ referralCode });
     if (referrer) {
-      referrer.points += 20000; // Award points to referrer
+      referrer.points += 500000; // Award points to referrer
       await referrer.save();
       console.log(`Points added to referrer: ${referrer.emailAddress}`);
     } else {
@@ -159,6 +159,26 @@ const logout = asyncHandler(async (req, res) => {
     secure: true,
   });
   return res.status(200).json({ message: "Successfully Logged Out" });
+});
+
+const getReferredUsers = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  const referredUsers = await User.find({ referredBy: user.referralCode });
+
+  res.status(200).json({
+    referredUsers: referredUsers.map(u => ({
+      email: u.emailAddress,
+      walletAddress: u.walletAddress,
+      points: u.points,
+      registeredAt: u.createdAt,
+    })),
+  });
 });
 
 // Get User Data
@@ -507,6 +527,7 @@ module.exports = {
   deleteAllUsers,
   updateUser,
   changePassword,
+  getReferredUsers,
   forgotPassword,
   resetPassword,
 };
