@@ -7,10 +7,10 @@ const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
 
 // Generate Token
-const generateToken = id => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-};
 
+const generateToken = id => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+};
 // Register User
 const registerUser = asyncHandler(async (req, res) => {
   const { walletAddress, emailAddress, password, referralCode } = req.body;
