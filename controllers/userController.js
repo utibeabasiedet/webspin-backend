@@ -224,7 +224,7 @@ const updatePoints = asyncHandler(async (req, res) => {
       spin => spin.date.toISOString().split("T")[0] === today
     ).length;
 
-    if (todaysSpins > 20) {
+    if (todaysSpins >= 21) {
       res.status(400).json({
         message: "You have reached the maximum number of spins for today.",
       });
