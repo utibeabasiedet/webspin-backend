@@ -150,10 +150,9 @@ const loginUser = asyncHandler(async (req, res) => {
 const editUser = asyncHandler(async (req, res) => {
   const { emailAddress, walletAddress } = req.body;
   const user = await User.findById(req.user._id);
-
   if (!user) {
     res.status(404);
-    throw new Error("User not found");
+    throw new Error("User not found")
   }
 
   // Check if the new email address already exists in the database
