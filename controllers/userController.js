@@ -53,8 +53,6 @@ const registerUser = asyncHandler(async (req, res) => {
     }
   }
 
- 
-
   // Generate Token
   const token = generateToken(user._id);
 
@@ -69,7 +67,7 @@ const registerUser = asyncHandler(async (req, res) => {
   // techi22333@gmail.com
 
   if (user) {
-    const { _id, walletAddress, emailAddress, points,referralCode } = user;
+    const { _id, walletAddress, emailAddress, points, referralCode } = user;
     res.status(201).json({
       message: "User registered successfully",
       user: {
@@ -77,7 +75,7 @@ const registerUser = asyncHandler(async (req, res) => {
         emailAddress,
         walletAddress,
         points,
-        referralCode
+        referralCode,
       },
       token,
     });
@@ -85,8 +83,6 @@ const registerUser = asyncHandler(async (req, res) => {
     res.status(400).json({ error: "Invalid user data" });
   }
 });
-
-
 
 // Login User
 const loginUser = asyncHandler(async (req, res) => {
@@ -111,7 +107,11 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (passwordIsCorrect) {
     // Check if the user's email is in the admin emails list
-    const adminEmails = ["yhuteecodes@gmail.com", "codedflexy555@gmail.com","Hildaessiet@gmail.com"];
+    const adminEmails = [
+      "yhuteecodes@gmail.com",
+      "codedflexy555@gmail.com",
+      "Hildaessiet@gmail.com",
+    ];
     if (adminEmails.includes(user.emailAddress)) {
       user.role = "admin";
       await user.save();
@@ -145,6 +145,48 @@ const loginUser = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Invalid email or password");
   }
+});
+
+const editUser = asyncHandler(async (req, res) => {
+  const { emailAddress, walletAddress } = req.body;
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  // Check if the new email address already exists in the database
+  if (emailAddress && emailAddress !== user.emailAddress) {
+    const emailExists = await User.findOne({ emailAddress });
+    if (emailExists) {
+      res.status(400);
+      throw new Error("Email address already in use");
+    }
+    user.emailAddress = emailAddress;
+  }
+
+  // Update wallet address if provided
+  if (walletAddress) {
+    user.walletAddress = walletAddress;
+  }
+
+  // Save the updated user
+  const updatedUser = await user.save();
+
+  res.status(200).json({
+    message: "User updated successfully",
+    user: {
+      _id: updatedUser._id,
+      emailAddress: updatedUser.emailAddress,
+      walletAddress: updatedUser.walletAddress,
+      points: updatedUser.points,
+      withdrawnPoints: updatedUser.withdrawnPoints,
+      totalPaid: updatedUser.totalPaid,
+      role: updatedUser.role,
+      referralCode: updatedUser.referralCode,
+    },
+  });
 });
 
 module.exports = loginUser;
@@ -194,7 +236,7 @@ const getUser = asyncHandler(async (req, res) => {
       withdrawnPoints,
       totalPaid,
       role,
-      referralCode
+      referralCode,
     } = user;
     res.status(200).json({
       _id,
@@ -204,7 +246,7 @@ const getUser = asyncHandler(async (req, res) => {
       withdrawnPoints,
       totalPaid,
       role,
-      referralCode
+      referralCode,
     });
   } else {
     res.status(400);
@@ -523,6 +565,7 @@ module.exports = {
   getAllUsers,
   getSpinCount,
   withdrawPoints,
+  editUser,
   loginStatus,
   deleteAllUsers,
   updateUser,

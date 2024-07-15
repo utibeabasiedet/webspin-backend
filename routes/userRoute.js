@@ -10,6 +10,7 @@ const {
     deleteAllUsers,
     withdrawPoints,
     payUsers,
+    editUser,
     updateUser,
     changePassword,
     forgotPassword,
@@ -37,6 +38,7 @@ router.post("/forgotpassword", forgotPassword);
 router.put("/resetpassword/:resetToken", resetPassword);
 router.delete('/delete-all', deleteAllUsers);
 router.post('/withdraw', protect, withdrawPoints);
+router.put("/edit", protect, editUser);
 router.post('/pay', protect, adminProtect, payUsers);
 router.get('/referred-users', protect, getReferredUsers); // Add this route
 
